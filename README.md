@@ -154,32 +154,6 @@ public class TestHttpHandler5 extends RestHandler {
 响应返回：```query-string:[1, 2, 100]```
 
 
-
-#### 提取URL中的参数
-Restful API经常需要解析URL中数值。light-rest对URL的匹配取值是非常灵活的。
-```
-// 省略import
-
-@Rest(value = "/test/{id}")
-public class TestHttpHandler2 extends RestHandler {
-
-	@Override
-	public Response get(Request request) {
-		Response response = new Response();
-		Map<String, String> pathParams = request.getPathParams();
-		String value = pathParams.get("id");
-		response.setBodyContent("hello-test:" + value);
-		return response;
-	}
-
-}
-```
-
-执行命令：```curl http://127.0.0.1:8080/test/123```<br>
-响应返回：```hello-test:123```
-
-
-
 #### 获取请求体中的内容
 
 ```
@@ -207,6 +181,30 @@ public class TestHttpHandler6 extends RestHandler {
 
 执行命令：```curl -X POST -d "helloworld" "http://127.0.0.1:8080/content"```<br>
 响应返回：```content:helloworld```
+
+
+#### 提取URL中的参数
+Restful API经常需要解析URL中数值。light-rest对URL的匹配取值是非常灵活的。
+```
+// 省略import
+
+@Rest(value = "/test/{id}")
+public class TestHttpHandler2 extends RestHandler {
+
+	@Override
+	public Response get(Request request) {
+		Response response = new Response();
+		Map<String, String> pathParams = request.getPathParams();
+		String value = pathParams.get("id");
+		response.setBodyContent("hello-test:" + value);
+		return response;
+	}
+
+}
+```
+
+执行命令：```curl http://127.0.0.1:8080/test/123```<br>
+响应返回：```hello-test:123```
 
 
 #### 提取多个参数
