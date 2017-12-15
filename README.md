@@ -50,7 +50,9 @@ public class TestHttpHandler1 extends RestHandler {
     
 }
 ```
+
 执行命令：```curl http://127.0.0.1:8080/test```
+
 返回：```hello-test```
 
 
@@ -110,16 +112,16 @@ public class TestHttpHandler4 extends RestHandler {
 ```
 
 发起Get请求：
-执行命令：```curl http://127.0.0.1:8080/method```
-返回：```method-get```
+    执行命令：```curl http://127.0.0.1:8080/method```
+    返回：```method-get```
 
 发起Post请求：
-执行命令：```curl -X POST http://127.0.0.1:8080/method```
-返回：```method-post```
+    执行命令：```curl -X POST http://127.0.0.1:8080/method```
+    返回：```method-post```
 
 发起Delete请求：
-执行命令：```curl -X DELETE http://127.0.0.1:8080/method```
-返回：```method-delete```
+    执行命令：```curl -X DELETE http://127.0.0.1:8080/method```
+    返回：```method-delete```
 
 
 
@@ -150,6 +152,7 @@ public class TestHttpHandler5 extends RestHandler {
 ```
 
 执行命令: ```curl  "http://127.0.0.1:8080/query-string?id=1&id=2&id=100"```
+
 返回：```query-string:[1, 2, 100]```
 
 
@@ -173,7 +176,9 @@ public class TestHttpHandler2 extends RestHandler {
 
 }
 ```
+
 执行命令：```curl http://127.0.0.1:8080/test/123```
+
 返回：```hello-test:123```
 
 
@@ -202,7 +207,9 @@ public class TestHttpHandler6 extends RestHandler {
 
 }
 ```
+
 执行命令：```curl -X POST -d "helloworld" "http://127.0.0.1:8080/content"```
+
 返回：```content:helloworld```
 
 
@@ -227,7 +234,9 @@ public class TestHttpHandler3 extends RestHandler {
 
 }
 ```
+
 执行命令：```curl http://127.0.0.1:8080/test/123/tomcat```
+
 返回：```hello-test:123,tomcat```
 
 
