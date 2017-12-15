@@ -17,12 +17,13 @@ import sjq.light.rest.http.rest.RestHandler;
 
 public class TestHttpServer {
 
-	public static void main(String[] args) throws Exception {
-		try (HttpRestServer httpRestServer = new HttpRestServer(8080)) {
-			httpRestServer.scanRestPackage("sjq.light.rest.http.server");
-			httpRestServer.start();
-		}
-	}
+    public static void main(String[] args) throws Exception {
+        try (HttpRestServer httpRestServer = new HttpRestServer(8080)) {
+            // 注册REST处理器所在package
+            httpRestServer.scanRestPackage("sjq.light.rest.http.server");
+            httpRestServer.start();
+        }
+    }
 }
 ```
 
@@ -65,47 +66,47 @@ package sjq.light.rest.http.server.example;
 @Rest(value = "/method")
 public class TestHttpHandler4 extends RestHandler {
 
-	@Override
-	public Response get(Request request) {
-		Response response = new Response();
-		response.setBodyContent("method-get");
-		return response;
-	}
+    @Override
+    public Response get(Request request) {
+        Response response = new Response();
+        response.setBodyContent("method-get");
+        return response;
+    }
 
-	@Override
-	public Response post(Request request) throws Exception {
-		Response response = new Response();
-		response.setBodyContent("method-post");
-		return response;
-	}
+    @Override
+    public Response post(Request request) throws Exception {
+        Response response = new Response();
+        response.setBodyContent("method-post");
+        return response;
+    }
 
-	@Override
-	public Response put(Request request) throws Exception {
-		Response response = new Response();
-		response.setBodyContent("method-put");
-		return response;
-	}
+    @Override
+    public Response put(Request request) throws Exception {
+        Response response = new Response();
+        response.setBodyContent("method-put");
+        return response;
+    }
 
-	@Override
-	public Response delete(Request request) throws Exception {
-		Response response = new Response();
-		response.setBodyContent("method-delete");
-		return response;
-	}
+    @Override
+    public Response delete(Request request) throws Exception {
+        Response response = new Response();
+        response.setBodyContent("method-delete");
+        return response;
+    }
 
-	@Override
-	public Response head(Request request) throws Exception {
-		Response response = new Response();
-		response.setBodyContent("method-head");
-		return response;
-	}
+    @Override
+    public Response head(Request request) throws Exception {
+        Response response = new Response();
+        response.setBodyContent("method-head");
+        return response;
+    }
 
-	@Override
-	public Response options(Request request) throws Exception {
-		Response response = new Response();
-		response.setBodyContent("method-options");
-		return response;
-	}
+    @Override
+    public Response options(Request request) throws Exception {
+        Response response = new Response();
+        response.setBodyContent("method-options");
+        return response;
+    }
 
 }
 ```
@@ -139,14 +140,14 @@ import sjq.light.rest.http.rest.RestHandler;
 @Rest(value = "/query-string")
 public class TestHttpHandler5 extends RestHandler {
 
-	@Override
-	public Response get(Request request) {
-		List<String> ids = request.getParams("id");
-		Response response = new Response();
-		response.setBodyContent("query-string:" + ids);
-		return response;
-	}
-	
+    @Override
+    public Response get(Request request) {
+        List<String> ids = request.getParams("id");
+        Response response = new Response();
+        response.setBodyContent("query-string:" + ids);
+        return response;
+    }
+    
 }
 ```
 
@@ -167,14 +168,14 @@ import sjq.light.rest.http.rest.RestHandler;
 @Rest(value = "/content")
 public class TestHttpHandler6 extends RestHandler {
 
-	@Override
-	public Response post(Request request) {
+    @Override
+    public Response post(Request request) {
 
-		String bodyContent = request.getBodyContent();
-		Response response = new Response();
-		response.setBodyContent("content:" + bodyContent);
-		return response;
-	}
+        String bodyContent = request.getBodyContent();
+        Response response = new Response();
+        response.setBodyContent("content:" + bodyContent);
+        return response;
+    }
 
 }
 ```
@@ -191,14 +192,14 @@ Restful API经常需要解析URL中数值。light-rest对URL的匹配取值是�
 @Rest(value = "/test/{id}")
 public class TestHttpHandler2 extends RestHandler {
 
-	@Override
-	public Response get(Request request) {
-		Response response = new Response();
-		Map<String, String> pathParams = request.getPathParams();
-		String value = pathParams.get("id");
-		response.setBodyContent("hello-test:" + value);
-		return response;
-	}
+    @Override
+    public Response get(Request request) {
+        Response response = new Response();
+        Map<String, String> pathParams = request.getPathParams();
+        String value = pathParams.get("id");
+        response.setBodyContent("hello-test:" + value);
+        return response;
+    }
 
 }
 ```
@@ -216,15 +217,15 @@ package sjq.light.rest.http.server.example;
 @Rest(value = "/test/{id}/{name}")
 public class TestHttpHandler3 extends RestHandler {
 
-	@Override
-	public Response get(Request request) {
-		Response response = new Response();
-		Map<String, String> pathParams = request.getPathParams();
-		String id = pathParams.get("id");
-		String name = pathParams.get("name");
-		response.setBodyContent("hello-test:" + id + "," + name);
-		return response;
-	}
+    @Override
+    public Response get(Request request) {
+        Response response = new Response();
+        Map<String, String> pathParams = request.getPathParams();
+        String id = pathParams.get("id");
+        String name = pathParams.get("name");
+        response.setBodyContent("hello-test:" + id + "," + name);
+        return response;
+    }
 
 }
 ```
