@@ -8,7 +8,7 @@ Tomcat慢，SpringMVC重。构建Restful真的不需要那么复杂。
 
 ## 快速构建一组基于HTTP协议的Restful API
 
-### 创建服务器：
+### 1 创建服务器：
 ```java
 package sjq.light.rest.http.server;
 
@@ -30,9 +30,9 @@ public class TestHttpServer {
 ```
 
 
-### 创建REST处理器
+### 2 创建REST处理器
 
-#### 一个最基础的REST处理器。
+#### 2.1 一个最基础的REST处理器。
 ```java
 package sjq.light.rest.http.server;
 
@@ -58,7 +58,7 @@ public class TestHttpHandler1 extends RestHandler {
 响应返回：```hello-test```
 
 
-#### 使用Get, Post，Delete，Put等其他HTTP方法
+#### 2.2 使用Get, Post，Delete，Put等其他HTTP方法
 
 ```java
 package sjq.light.rest.http.server.example;
@@ -127,7 +127,7 @@ public class TestHttpHandler4 extends RestHandler {
 
 
 
-#### 提取查询字符串中的参数
+#### 2.3 提取查询字符串中的参数
 
 ```java
 package sjq.light.rest.http.server.example;
@@ -157,7 +157,7 @@ public class TestHttpHandler5 extends RestHandler {
 响应返回：```query-string:[1, 2, 100]```
 
 
-#### 获取请求体中的内容
+#### 2.4 获取请求体中的内容
 
 ```java
 package sjq.light.rest.http.server.example;
@@ -186,7 +186,7 @@ public class TestHttpHandler6 extends RestHandler {
 响应返回：```content:helloworld```
 
 
-#### 提取URL中的参数
+#### 2.5 提取URL中的参数
 Restful API经常需要解析URL中数值。light-rest对URL的匹配取值是非常灵活的。
 ```java
 // 省略import
@@ -210,7 +210,7 @@ public class TestHttpHandler2 extends RestHandler {
 响应返回：```hello-test:123```
 
 
-#### 提取多个参数
+#### 2.6 提取多个URL中的参数
 ```java
 package sjq.light.rest.http.server.example;
 
