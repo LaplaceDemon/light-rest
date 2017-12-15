@@ -3,6 +3,8 @@ A lightweight, high performance Restful API framework.
 
 轻量级，高性能RESTful API框架。
 
+Tomcat慢，SpringMVC重。构建Restful真的不需要那么复杂。
+
 
 ## 快速构建一组基于HTTP协议的Restful API
 
