@@ -1,5 +1,8 @@
 package sjq.light.rest.http.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -15,6 +18,7 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 
 public class HttpRestServer implements AutoCloseable {
+	private static Logger LOGGER  = LoggerFactory.getLogger(HttpRestServer.class);
 	private int port;
 	private ServerBootstrap bootstrap;
 	private EventLoopGroup bossGroup;
@@ -53,6 +57,7 @@ public class HttpRestServer implements AutoCloseable {
 	public void start() {
 		try {
 			Channel ch = bootstrap.bind(port).sync().channel();
+			LOGGER.info("the light-rest has been started");
 			ch.closeFuture().sync();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
