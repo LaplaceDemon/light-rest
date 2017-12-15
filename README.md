@@ -45,6 +45,8 @@ public class TestHttpHandler extends RestHandler {
 }
 ```
 
+调用方法，执行命令：curl http://127.0.0.1:8080/test
+返回：hello-test
 
-调用方法，执行命令：curl 
+
 
