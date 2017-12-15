@@ -1,5 +1,8 @@
 # light-rest
-A lightweight, high performance Restful API framework. 轻量级，高性能RESTful API框架。
+A lightweight, high performance Restful API framework.
+
+轻量级，高性能RESTful API框架。
+
 
 ## 快速构建一组基于HTTP协议的Restful API
 
