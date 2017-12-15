@@ -51,9 +51,8 @@ public class TestHttpHandler1 extends RestHandler {
 }
 ```
 
-执行命令：```curl http://127.0.0.1:8080/test```
-
-返回：```hello-test```
+执行命令：```curl http://127.0.0.1:8080/test```<br>
+响应返回：```hello-test```
 
 
 #### 使用Get, Post，Delete，Put等其他HTTP方法
@@ -111,17 +110,17 @@ public class TestHttpHandler4 extends RestHandler {
 }
 ```
 
-发起Get请求：
-    执行命令：```curl http://127.0.0.1:8080/method```
-    返回：```method-get```
+发起Get请求：<br>
+执行命令：```curl http://127.0.0.1:8080/method```<br>
+响应返回：```method-get```
 
-发起Post请求：
-    执行命令：```curl -X POST http://127.0.0.1:8080/method```
-    返回：```method-post```
+发起Post请求：<br>
+执行命令：```curl -X POST http://127.0.0.1:8080/method```<br>
+响应返回：```method-post```
 
-发起Delete请求：
-    执行命令：```curl -X DELETE http://127.0.0.1:8080/method```
-    返回：```method-delete```
+发起Delete请求：<br>
+执行命令：```curl -X DELETE http://127.0.0.1:8080/method```<br>
+响应返回：```method-delete```
 
 
 
@@ -151,9 +150,8 @@ public class TestHttpHandler5 extends RestHandler {
 }
 ```
 
-执行命令: ```curl  "http://127.0.0.1:8080/query-string?id=1&id=2&id=100"```
-
-返回：```query-string:[1, 2, 100]```
+执行命令: ```curl  "http://127.0.0.1:8080/query-string?id=1&id=2&id=100"```<br>
+响应返回：```query-string:[1, 2, 100]```
 
 
 
@@ -177,9 +175,8 @@ public class TestHttpHandler2 extends RestHandler {
 }
 ```
 
-执行命令：```curl http://127.0.0.1:8080/test/123```
-
-返回：```hello-test:123```
+执行命令：```curl http://127.0.0.1:8080/test/123```<br>
+响应返回：```hello-test:123```
 
 
 
@@ -208,9 +205,8 @@ public class TestHttpHandler6 extends RestHandler {
 }
 ```
 
-执行命令：```curl -X POST -d "helloworld" "http://127.0.0.1:8080/content"```
-
-返回：```content:helloworld```
+执行命令：```curl -X POST -d "helloworld" "http://127.0.0.1:8080/content"```<br>
+响应返回：```content:helloworld```
 
 
 #### 提取多个参数
@@ -235,9 +231,8 @@ public class TestHttpHandler3 extends RestHandler {
 }
 ```
 
-执行命令：```curl http://127.0.0.1:8080/test/123/tomcat```
-
-返回：```hello-test:123,tomcat```
+执行命令：```curl http://127.0.0.1:8080/test/123/tomcat```<br>
+响应返回：```hello-test:123,tomcat```
 
 
 
