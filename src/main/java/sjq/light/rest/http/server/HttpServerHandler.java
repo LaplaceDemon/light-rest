@@ -1,3 +1,4 @@
+
 package sjq.light.rest.http.server;
 
 import java.io.ByteArrayInputStream;
@@ -21,13 +22,16 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.util.AsciiString;
+import io.netty.util.ReferenceCountUtil;
 import sjq.light.rest.http.exception.BadRequestException;
 import sjq.light.rest.http.request.Request;
+import sjq.light.rest.http.response.JSONResponse;
 import sjq.light.rest.http.response.Response;
 import sjq.light.rest.http.rest.MatchAction;
 import sjq.light.rest.http.rest.RestHandler;
@@ -60,24 +64,24 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
         if (HttpUtil.is100ContinueExpected(httpRequest)) {
             ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE));
         }
-
-        boolean needCloseConnection = needCloseConnection(httpRequest);
         FullHttpResponse httpResponse = restHandler(httpRequest);
+        boolean needCloseConnection = needCloseConnection(httpRequest,httpResponse);
+        
+        if(httpResponse.status().equals(HttpResponseStatus.NOT_FOUND)) {
+        		// 增加一次引用计数。
+        		ReferenceCountUtil.retain(httpRequest);
+        		ctx.fireChannelRead(httpRequest);
+        		return ;
+        }
 
-        boolean keepAlive = HttpUtil.isKeepAlive(httpRequest);
-        if (!keepAlive) {
+        if (needCloseConnection) {
             LOGGER.debug("close connection.");
-            ctx.write(httpResponse).addListener(ChannelFutureListener.CLOSE);
+            ctx.writeAndFlush(httpResponse).addListener(ChannelFutureListener.CLOSE);
         } else {
             LOGGER.debug("keep connection.");
             // 继续保持连接。
             httpResponse.headers().set(CONNECTION, KEEP_ALIVE);
-            ctx.write(httpResponse);
-        }
-
-        if (needCloseConnection) {
-        		ctx.flush();
-        		ctx.close();
+            ctx.writeAndFlush(httpResponse);
         }
 
     }
@@ -88,23 +92,23 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
         ctx.close();
     }
 
-    private boolean needCloseConnection(HttpRequest httpRequest) {
-        boolean connectionClose = false;
+    private boolean needCloseConnection(HttpRequest httpRequest,HttpResponse httpResponse) {
+//        boolean connectionClose = false;
         if (httpRequest instanceof FullHttpRequest) {
-            FullHttpRequest fullHttpRequest = (FullHttpRequest) httpRequest;
-            // http head
-            HttpHeaders headers = fullHttpRequest.headers();
-            for (Entry<String, String> entry : headers.entries()) {
-                if (entry.getKey().equalsIgnoreCase("connection")) {
-                    if (entry.getValue().equalsIgnoreCase("close")) {
-                        connectionClose = true;
-                        break;
-                    }
-                }
-            }
+        		boolean keepAlive = HttpUtil.isKeepAlive(httpRequest);
+        		
+        		if(!keepAlive) {
+        			return keepAlive;
+        		}
+        		
+        		// error, close
+        		if(httpResponse.status().code() >= 300) {
+        			return false;
+        		}
         }
 
-        return connectionClose;
+        return true;
+//        return connectionClose;
     }
 
     private FullHttpResponse restHandler(HttpRequest httpRequest) {
@@ -120,7 +124,9 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
         }
 
         MatchAction matchAction = restDispatcher.findBasicRESTHandler(preUri);
+        
         if (matchAction == null) {
+        		// 查询是否存在静态文件
             FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND);
             return response;
         }
@@ -198,9 +204,9 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
                 break;
             default:
                 LOGGER.warn("can't support http method :{}", method);
-                FullHttpResponse HttpResponse400 = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
+                FullHttpResponse HttpResponse404 = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
                         HttpResponseStatus.NOT_FOUND);
-                return HttpResponse400;
+                return HttpResponse404;
             }
 
             String responseContent = httpResponse.getBodyContent();
@@ -230,15 +236,14 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
             if (badRequestException.getStatus() == 400) {
                 fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST);
             } else {
-                fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-                        HttpResponseStatus.INTERNAL_SERVER_ERROR);
+                fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR);
             }
 
             return fullHttpResponse;
         } catch (Exception exception) {
-            LOGGER.error(ExceptionUtils.parseExceptionStackTrace(exception));
-            FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-                    HttpResponseStatus.INTERNAL_SERVER_ERROR);
+        		LOGGER.error(ExceptionUtils.parseExceptionStackTrace(exception));
+            FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR);
+            
             return fullHttpResponse;
         }
     }

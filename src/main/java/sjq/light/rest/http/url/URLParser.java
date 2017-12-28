@@ -64,7 +64,7 @@ public class URLParser {
 				lastParamTerm = term;
 			}else{
 				int startIndex = url.indexOf(term.name,lastIndex);
-				if(startIndex<0){
+				if(startIndex<0) {
 					return new MatchParams(false, null);
 				}
 				if(lastParamTerm != null){
@@ -81,6 +81,17 @@ public class URLParser {
 			resultMap.put(lastParamTerm.name, strValue);
 			lastParamTerm = null;
 		}
+		
+		/* 这段代码是为了解决 /test1/abc 可以匹配注解值为“/test”的问题。但实际上，只需要将匹配注解值修改为“/test/”就能解决问题。
+		else { // lastParamTerm == null
+			int charLen = url.length() - lastIndex;
+			if(charLen > 1) {
+				return new MatchParams(false, null);
+			} else if(charLen == 1 && url.charAt(url.length()-1) != '/') {
+				return new MatchParams(false, null);
+			}
+		}
+		*/
 		
 		return new MatchParams(true, resultMap);
 	}

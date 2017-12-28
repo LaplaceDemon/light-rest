@@ -56,6 +56,12 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
 	public static final String HTTP_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
 	public static final String HTTP_DATE_GMT_TIMEZONE = "GMT";
 	public static final int HTTP_CACHE_SECONDS = 60;
+	
+	private String filePath;
+	
+	public HttpStaticFileServerHandler(String path) {
+		this.filePath = path;
+	}
 
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
@@ -70,7 +76,14 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
 		}
 
 		final String uri = request.uri();
-		final String path = sanitizeUri(uri);
+		final String path;
+		if(filePath == null) {
+			path = sanitizeUri(uri);
+		} else {
+			path = filePath + uri;
+		}
+		
+		System.out.println("file:" + path);
 		if (path == null) {
 			sendError(ctx, FORBIDDEN);
 			return;
@@ -96,6 +109,7 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
 			return;
 		}
 
+		/*
 		// Cache Validation
 		String ifModifiedSince = request.headers().get(HttpHeaderNames.IF_MODIFIED_SINCE);
 		if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
@@ -112,6 +126,7 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
 				return;
 			}
 		}
+		*/
 
 		RandomAccessFile raf;
 		try {
