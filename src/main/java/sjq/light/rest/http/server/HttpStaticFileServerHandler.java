@@ -1,5 +1,16 @@
 package sjq.light.rest.http.server;
 
+import static io.netty.handler.codec.http.HttpMethod.GET;
+import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
+import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
+import static io.netty.handler.codec.http.HttpResponseStatus.FOUND;
+import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERROR;
+import static io.netty.handler.codec.http.HttpResponseStatus.METHOD_NOT_ALLOWED;
+import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
+import static io.netty.handler.codec.http.HttpResponseStatus.NOT_MODIFIED;
+import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
@@ -40,17 +51,6 @@ import io.netty.handler.stream.ChunkedFile;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.SystemPropertyUtil;
 
-import static io.netty.handler.codec.http.HttpMethod.GET;
-import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
-import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
-import static io.netty.handler.codec.http.HttpResponseStatus.FOUND;
-import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERROR;
-import static io.netty.handler.codec.http.HttpResponseStatus.METHOD_NOT_ALLOWED;
-import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
-import static io.netty.handler.codec.http.HttpResponseStatus.NOT_MODIFIED;
-import static io.netty.handler.codec.http.HttpResponseStatus.OK;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-
 public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
 	public static final String HTTP_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
@@ -83,7 +83,7 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
 			path = filePath + uri;
 		}
 		
-		System.out.println("file:" + path);
+//		System.out.println("file:" + path);
 		if (path == null) {
 			sendError(ctx, FORBIDDEN);
 			return;
@@ -96,11 +96,14 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
 		}
 
 		if (file.isDirectory()) {
+			/*
+			不需要显示目录，所以这段注释
 			if (uri.endsWith("/")) {
 				sendListing(ctx, file, uri);
 			} else {
 				sendRedirect(ctx, uri + '/');
-			}
+			}*/
+			sendError(ctx, NOT_FOUND);
 			return;
 		}
 
@@ -157,8 +160,7 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
 			// Write the end marker.
 			lastContentFuture = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
 		} else {
-			sendFileFuture = ctx.writeAndFlush(new HttpChunkedInput(new ChunkedFile(raf, 0, fileLength, 8192)),
-					ctx.newProgressivePromise());
+			sendFileFuture = ctx.writeAndFlush(new HttpChunkedInput(new ChunkedFile(raf, 0, fileLength, 8192)), ctx.newProgressivePromise());
 			// HttpChunkedInput will write the end marker (LastHttpContent) for us.
 			lastContentFuture = sendFileFuture;
 		}
@@ -166,16 +168,16 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
 		sendFileFuture.addListener(new ChannelProgressiveFutureListener() {
 			@Override
 			public void operationProgressed(ChannelProgressiveFuture future, long progress, long total) {
-				if (total < 0) { // total unknown
-					System.err.println(future.channel() + " Transfer progress: " + progress);
-				} else {
-					System.err.println(future.channel() + " Transfer progress: " + progress + " / " + total);
-				}
+//				if (total < 0) { // total unknown
+//					System.err.println(future.channel() + " Transfer progress: " + progress);
+//				} else {
+//					System.err.println(future.channel() + " Transfer progress: " + progress + " / " + total);
+//				}
 			}
 
 			@Override
 			public void operationComplete(ChannelProgressiveFuture future) {
-				System.err.println(future.channel() + " Transfer complete.");
+//				System.err.println(future.channel() + " Transfer complete.");
 			}
 		});
 
@@ -338,6 +340,11 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
 	 */
 	private static void setContentTypeHeader(HttpResponse response, File file) {
 		MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
-		response.headers().set(HttpHeaderNames.CONTENT_TYPE, mimeTypesMap.getContentType(file.getPath()));
+		if(file.getName().endsWith("css")) {
+			response.headers().set(HttpHeaderNames.CONTENT_TYPE,"text/css");
+		} else {
+			response.headers().set(HttpHeaderNames.CONTENT_TYPE, mimeTypesMap.getContentType(file.getPath()));
+		}
+		
 	}
 }

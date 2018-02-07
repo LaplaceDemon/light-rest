@@ -76,13 +76,13 @@ public class URLParser {
 			}
 		}
 		
-		if(lastParamTerm != null){
+		if(lastParamTerm != null) {
 			String strValue = url.substring(lastIndex,url.length());
 			resultMap.put(lastParamTerm.name, strValue);
 			lastParamTerm = null;
 		}
 		
-		/* 这段代码是为了解决 /test1/abc 可以匹配注解值为“/test”的问题。但实际上，只需要将匹配注解值修改为“/test/”就能解决问题。
+		// 这段代码是为了解决 /test1/abc 可以匹配注解值为“/test”的问题。但实际上，只需要将匹配注解值修改为“/test/”就能解决问题。
 		else { // lastParamTerm == null
 			int charLen = url.length() - lastIndex;
 			if(charLen > 1) {
@@ -91,7 +91,6 @@ public class URLParser {
 				return new MatchParams(false, null);
 			}
 		}
-		*/
 		
 		return new MatchParams(true, resultMap);
 	}

@@ -11,6 +11,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
@@ -31,14 +34,10 @@ import io.netty.util.AsciiString;
 import io.netty.util.ReferenceCountUtil;
 import sjq.light.rest.http.exception.BadRequestException;
 import sjq.light.rest.http.request.Request;
-import sjq.light.rest.http.response.JSONResponse;
 import sjq.light.rest.http.response.Response;
 import sjq.light.rest.http.rest.MatchAction;
 import sjq.light.rest.http.rest.RestHandler;
 import sjq.light.rest.util.ExceptionUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpServerHandler.class);
@@ -103,11 +102,11 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
         		
         		// error, close
         		if(httpResponse.status().code() >= 300) {
-        			return false;
+        			return true;
         		}
         }
 
-        return true;
+        return false;
 //        return connectionClose;
     }
 
