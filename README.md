@@ -3,7 +3,25 @@ A lightweight, high performance Restful API framework.
 
 轻量级，高性能RESTful API框架。
 
-Tomcat慢，SpringMVC重。构建Restful真的不需要那么复杂。
+Tomcat慢，SpringMVC重。构建Restful API真的不需要那么复杂。
+
+
+
+## Maven下载依赖
+
+下载当前最新版本：
+
+```xml
+<dependency>
+    <groupId>io.github.laplacedemon</groupId>
+    <artifactId>light-rest</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
+
+
+
+
 
 
 ## 快速构建一组基于HTTP协议的Restful API
