@@ -12,6 +12,11 @@
         <artifactId>oss-parent</artifactId>
         <version>7</version>
     </parent>
+    <scm>
+        <url>https://github.com/LaplaceDemon/light-rest</url>
+        <connection>scm:git:git://github.com/LaplaceDemon/light-rest.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/LaplaceDemon/light-rest.git</developerConnection>
+    </scm>
 	<dependencies>
 		<dependency>
 			<groupId>io.netty</groupId>
