@@ -3,7 +3,15 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>sjq.light</groupId>
 	<artifactId>light-rest</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.0</version>
+	<name>light-weight</name>
+    <description>Lightweight Restful HTTP API framework</description>
+    <url>https://github.com/LaplaceDemon/light-rest</url>
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
 	<dependencies>
 		<dependency>
 			<groupId>io.netty</groupId>
@@ -24,7 +32,6 @@
 			<version>1.7.21</version>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
@@ -40,7 +47,6 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	
 	<build>
 		<plugins>
 			<plugin>
