@@ -190,7 +190,6 @@ public class TestHttpHandler6 extends RestHandler {
 
     @Override
     public Response post(Request request) {
-
         String bodyContent = request.getBodyContent();
         Response response = new Response();
         response.setBodyContent("content:" + bodyContent);
