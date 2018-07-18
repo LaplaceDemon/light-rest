@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.laplacedemon</groupId>
 	<artifactId>light-rest</artifactId>
-	<version>0.1.0</version>
+	<version>0.1.1</version>
 	<name>light-weight</name>
     <description>Lightweight Restful HTTP API framework</description>
     <url>https://github.com/LaplaceDemon/light-rest</url>

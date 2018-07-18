@@ -52,15 +52,16 @@ import io.netty.util.CharsetUtil;
 import io.netty.util.internal.SystemPropertyUtil;
 
 public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
-
 	public static final String HTTP_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
 	public static final String HTTP_DATE_GMT_TIMEZONE = "GMT";
 	public static final int HTTP_CACHE_SECONDS = 60;
 	
 	private String filePath;
+	private String staticIndex;
 	
-	public HttpStaticFileServerHandler(String path) {
+	public HttpStaticFileServerHandler(String path,String staticIndex) {
 		this.filePath = path;
+		this.staticIndex = staticIndex;
 	}
 
 	@Override
@@ -96,15 +97,13 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
 		}
 
 		if (file.isDirectory()) {
-			/*
-			不需要显示目录，所以这段注释
-			if (uri.endsWith("/")) {
-				sendListing(ctx, file, uri);
-			} else {
-				sendRedirect(ctx, uri + '/');
-			}*/
-			sendError(ctx, NOT_FOUND);
-			return;
+		    if(this.staticIndex == null || this.staticIndex.isEmpty()) {
+		        sendError(ctx, NOT_FOUND);
+	            return;
+		    }
+		    
+		    String staticIndexPath = path + staticIndex;
+		    file = new File(staticIndexPath);
 		}
 
 		if (!file.isFile()) {
@@ -233,9 +232,7 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
 		StringBuilder buf = new StringBuilder().append("<!DOCTYPE html>\r\n")
 				.append("<html><head><meta charset='utf-8' /><title>").append("Listing of: ").append(dirPath)
 				.append("</title></head><body>\r\n")
-
 				.append("<h3>Listing of: ").append(dirPath).append("</h3>\r\n")
-
 				.append("<ul>").append("<li><a href=\"../\">..</a></li>\r\n");
 
 		for (File f : dir.listFiles()) {

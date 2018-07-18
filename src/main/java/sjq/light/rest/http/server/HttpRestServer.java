@@ -32,8 +32,12 @@ public class HttpRestServer implements AutoCloseable {
 	public HttpRestServer(int port) {
 		this(port, null);
 	}
-
+	
 	public HttpRestServer(int port, String filePath) {
+	    this(port,filePath,null);
+    }
+
+	public HttpRestServer(int port, String filePath,String staticIndex) {
 		this.port = port;
 		bossGroup = new NioEventLoopGroup(1);
 		workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
@@ -41,6 +45,7 @@ public class HttpRestServer implements AutoCloseable {
 
 		bootstrap = new ServerBootstrap();
 		final String _filePath = filePath;
+		final String _staticIndex = staticIndex;
 		bootstrap.option(ChannelOption.SO_BACKLOG, 1024).option(ChannelOption.SO_REUSEADDR, true)
 				.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
 				.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
@@ -53,7 +58,7 @@ public class HttpRestServer implements AutoCloseable {
 						pipeline.addLast("codec", new HttpServerCodec())
 								.addLast("aggregator", new HttpObjectAggregator(1048576))
 								.addLast(eventExecutorGroup, "rest", new HttpServerHandler(restDispatcher))
-								.addLast(eventExecutorGroup, "file", new HttpStaticFileServerHandler(_filePath));
+								.addLast(eventExecutorGroup, "file", new HttpStaticFileServerHandler(_filePath,_staticIndex));
 					}
 				});
 	}
@@ -61,10 +66,6 @@ public class HttpRestServer implements AutoCloseable {
 	public void scanRestPackage(String packageName) {
 		restDispatcher = RestDispatcher.createDispatcher(packageName);
 	}
-
-	// public void setFilePath(String path) {
-	// this.filePath = path;
-	// }
 
 	public void start() {
 		try {
