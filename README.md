@@ -15,7 +15,7 @@ Tomcat慢，SpringMVC重。构建Restful API真的不需要那么复杂。
 <dependency>
     <groupId>io.github.laplacedemon</groupId>
     <artifactId>light-rest</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
 </dependency>
 ```
 
