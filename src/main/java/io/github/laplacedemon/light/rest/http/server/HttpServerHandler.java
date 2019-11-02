@@ -60,24 +60,23 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
     	
         String method = httpRequest.method().toString().toUpperCase();
         String uri = httpRequest.uri();
-
-        int splitIndex = uri.indexOf("?");
+        
+        final int splitIndex = uri.indexOf("?");
         String preUri;
         if (splitIndex > 0) {
             preUri = uri.substring(0, splitIndex);
         } else {
             preUri = uri;
         }
-
-        MatchAction matchAction = restDispatcher.findBasicRESTHandler(preUri);
         
+        final MatchAction matchAction = restDispatcher.findBasicRESTHandler(preUri);
         if (matchAction == null) {
             FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND);
             ctx.channel().writeAndFlush(response);
             return ;
         }
         
-        boolean willCloseConnection = checkWillCloseConnection(httpRequest);
+        final boolean willCloseConnection = checkWillCloseConnection(httpRequest);
         if (willCloseConnection) {
         	ioSession.willClose();
         }
@@ -131,9 +130,9 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
             return ;
         } catch (Exception exception) {
     		LOGGER.error(ExceptionUtils.parseExceptionStackTrace(exception));
-            
     		RestResponse restResponse = new RestResponse();
     		restResponse.setStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+    		restResponse.setBodyContent(exception.getMessage());
             ioSession.writeAndFlush(restResponse);
             return ;
         }
