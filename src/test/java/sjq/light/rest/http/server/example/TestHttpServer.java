@@ -1,6 +1,6 @@
 package sjq.light.rest.http.server.example;
 
-import sjq.light.rest.http.server.HttpRestServer;
+import io.github.laplacedemon.light.rest.http.server.HttpRestServer;
 
 public class TestHttpServer {
 
