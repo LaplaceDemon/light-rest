@@ -58,9 +58,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
     private void restHandler(final HttpRequest httpRequest, final ChannelHandlerContext ctx) {
     	IOSession ioSession = ChannelAttribute.getIOSession(ctx);
     	
-        String method = httpRequest.method().toString().toUpperCase();
         String uri = httpRequest.uri();
-        
         final int splitIndex = uri.indexOf("?");
         String preUri;
         if (splitIndex > 0) {
@@ -84,8 +82,10 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
         Map<String, String> pathParams = matchAction.getMatchParams().getParams();
         Map<String, List<String>> queryParams = paraseQueryParams(uri);
         RestHandler restHandler = matchAction.getRestHandler();
-        RestRequest request = new RestRequest(uri, pathParams, queryParams, httpRequest);
+        
         try {
+            RestRequest request = new RestRequest(uri, pathParams, queryParams, httpRequest);
+            String method = httpRequest.method().toString().toUpperCase();
             switch (method) {
             case "GET":
                 restHandler.get(request, ioSession);
