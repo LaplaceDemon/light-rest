@@ -3,6 +3,8 @@ package io.github.laplacedemon.light.rest.http.server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.github.laplacedemon.light.rest.http.rest.RestHandler;
+import io.github.laplacedemon.light.rest.http.url.URLParser;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -66,6 +68,11 @@ public class HttpRestServer implements AutoCloseable {
 	public void scanRestPackage(String packageName) {
 		this.restDispatcher = RestDispatcher.createDispatcher(packageName);
 	}
+	
+	public void register(String urlTemplate, RestHandler basicRESTHandler){
+        URLParser urlParse = URLParser.parse(urlTemplate);
+        restDispatcher.register(urlParse, basicRESTHandler);
+    }
 
 	public void start() {
 		try {
