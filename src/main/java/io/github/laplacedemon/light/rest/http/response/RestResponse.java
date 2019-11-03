@@ -13,6 +13,9 @@ public class RestResponse {
 	}
 
 	public void setBodyContent(String bodyContent) {
+	    if (this.status == 204) {
+	        this.status = 200;
+	    }
 		this.bodyContent = bodyContent;
 	}
 

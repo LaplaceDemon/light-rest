@@ -38,14 +38,12 @@ public class HttpRestServer implements AutoCloseable {
 
 	public HttpRestServer(final int port, final String uploadFilePath, final String staticIndex) {
 		this.port = port;
-		bossGroup = new NioEventLoopGroup(1);
-		workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
-		eventExecutorGroup = new DefaultEventExecutorGroup(16);
-
-		bootstrap = new ServerBootstrap();
-		final String _filePath = uploadFilePath;
-		final String _staticIndex = staticIndex;
-		bootstrap.option(ChannelOption.SO_BACKLOG, 1024).option(ChannelOption.SO_REUSEADDR, true)
+		this.bossGroup = new NioEventLoopGroup(1);
+		this.workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
+		this.eventExecutorGroup = new DefaultEventExecutorGroup(16);
+		
+		this.bootstrap = new ServerBootstrap();
+		this.bootstrap.option(ChannelOption.SO_BACKLOG, 1024).option(ChannelOption.SO_REUSEADDR, true)
 			.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
 			.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
 			.childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(8 * 1024, 64 * 1024))
@@ -59,7 +57,7 @@ public class HttpRestServer implements AutoCloseable {
 						.addLast("codec", new HttpServerCodec())
 						.addLast("aggregator", new HttpObjectAggregator(1048576))
 						.addLast(eventExecutorGroup, "rest", new HttpServerHandler(restDispatcher))
-						.addLast(eventExecutorGroup, "file", new HttpStaticFileServerHandler(_filePath,_staticIndex));
+						.addLast(eventExecutorGroup, "file", new HttpStaticFileServerHandler(uploadFilePath,staticIndex));
 				}
 			}
 		);

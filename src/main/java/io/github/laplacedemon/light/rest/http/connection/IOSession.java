@@ -40,40 +40,36 @@ public class IOSession {
 	}
 
 	public void writeAndFlush(final RestResponse restHttpResponse, final Runnable runnable) {
-		final FullHttpResponse nettyFillHttpResponse;
-		
 		String responseContent = restHttpResponse.getBodyContent();
 		int statusCode = restHttpResponse.getStatus();
+		
+		final FullHttpResponse nettyFullHttpResponse;
 		if (statusCode == 204 && (responseContent == null || responseContent.length() == 0)) {
-			nettyFillHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NO_CONTENT);
+			nettyFullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NO_CONTENT);
 		} else {
 			HttpResponseStatus httpResponseStatus = HttpResponseStatus.valueOf(statusCode);
 			if(statusCode >= 400) {
 				LOGGER.error( "Http status code:" + httpResponseStatus.codeAsText().toString() + ", Content:" + restHttpResponse.getBodyContent());
 			}
 			
-			nettyFillHttpResponse = new DefaultFullHttpResponse(
-				HttpVersion.HTTP_1_1,
-				httpResponseStatus,
-				Unpooled.wrappedBuffer(responseContent.getBytes(Charset.defaultCharset()))
-			);
+			nettyFullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, httpResponseStatus, Unpooled.wrappedBuffer(responseContent.getBytes(Charset.defaultCharset())));
 
-			HttpHeaders headers = nettyFillHttpResponse.headers();
+			HttpHeaders headers = nettyFullHttpResponse.headers();
 			
 			for (Entry<String, String> entry : restHttpResponse.getHeadMap().entrySet()) {
 				headers.set(entry.getKey(), entry.getValue());
 			}
 
-			headers.setInt(CONTENT_LENGTH, nettyFillHttpResponse.content().readableBytes());
+			headers.setInt(CONTENT_LENGTH, nettyFullHttpResponse.content().readableBytes());
 		}
 		
-		boolean responseWillCloseConnection = checkResponseWillCloseConnection(nettyFillHttpResponse);
+		boolean responseWillCloseConnection = checkResponseWillCloseConnection(nettyFullHttpResponse);
 		if (responseWillCloseConnection || this.requestWillCloseConnection.get()) {
 			if(LOGGER.isDebugEnabled()) {
 				LOGGER.debug("close connection.");
 			}
-			nettyFillHttpResponse.headers().set(CONNECTION, "close");
-			ChannelFuture channelFuture = channel.writeAndFlush(nettyFillHttpResponse);
+			nettyFullHttpResponse.headers().set(CONNECTION, "close");
+			ChannelFuture channelFuture = channel.writeAndFlush(nettyFullHttpResponse);
 			
 			if(runnable != null) {
 				channelFuture = channelFuture.addListener(new ChannelFutureListener() {
@@ -92,16 +88,15 @@ public class IOSession {
 			if(LOGGER.isDebugEnabled()) {
 				LOGGER.debug("keep connection.");
 			}
-			nettyFillHttpResponse.headers().set(CONNECTION, KEEP_ALIVE);
-			ChannelFuture channelFuture = this.channel.writeAndFlush(nettyFillHttpResponse);
-			if(runnable != null) {
-				channelFuture.addListener(new ChannelFutureListener() {
-
+			nettyFullHttpResponse.headers().set(CONNECTION, KEEP_ALIVE);
+			ChannelFuture channelFuture = this.channel.writeAndFlush(nettyFullHttpResponse);
+			if (runnable != null) {
+			    channelFuture.addListener(new ChannelFutureListener() {
+			    	
 					@Override
 					public void operationComplete(ChannelFuture future) throws Exception {
 						runnable.run();
 					}
-					
 				});
 			}
 			return ;

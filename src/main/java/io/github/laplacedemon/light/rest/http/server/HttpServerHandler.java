@@ -58,26 +58,23 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
     private void restHandler(final HttpRequest httpRequest, final ChannelHandlerContext ctx) {
     	IOSession ioSession = ChannelAttribute.getIOSession(ctx);
     	
-        String method = httpRequest.method().toString().toUpperCase();
         String uri = httpRequest.uri();
-
-        int splitIndex = uri.indexOf("?");
+        final int splitIndex = uri.indexOf("?");
         String preUri;
         if (splitIndex > 0) {
             preUri = uri.substring(0, splitIndex);
         } else {
             preUri = uri;
         }
-
-        MatchAction matchAction = restDispatcher.findBasicRESTHandler(preUri);
         
+        final MatchAction matchAction = restDispatcher.findBasicRESTHandler(preUri);
         if (matchAction == null) {
             FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND);
             ctx.channel().writeAndFlush(response);
             return ;
         }
         
-        boolean willCloseConnection = checkWillCloseConnection(httpRequest);
+        final boolean willCloseConnection = checkWillCloseConnection(httpRequest);
         if (willCloseConnection) {
         	ioSession.willClose();
         }
@@ -85,8 +82,10 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
         Map<String, String> pathParams = matchAction.getMatchParams().getParams();
         Map<String, List<String>> queryParams = paraseQueryParams(uri);
         RestHandler restHandler = matchAction.getRestHandler();
-        RestRequest request = new RestRequest(uri, pathParams, queryParams, httpRequest);
+        
         try {
+            RestRequest request = new RestRequest(uri, pathParams, queryParams, httpRequest);
+            String method = httpRequest.method().toString().toUpperCase();
             switch (method) {
             case "GET":
                 restHandler.get(request, ioSession);
@@ -131,9 +130,9 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
             return ;
         } catch (Exception exception) {
     		LOGGER.error(ExceptionUtils.parseExceptionStackTrace(exception));
-            
     		RestResponse restResponse = new RestResponse();
     		restResponse.setStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+    		restResponse.setBodyContent(exception.getMessage());
             ioSession.writeAndFlush(restResponse);
             return ;
         }
