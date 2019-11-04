@@ -1,5 +1,6 @@
 package io.github.laplacedemon.light.rest.http.server;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,13 +11,16 @@ import io.github.laplacedemon.light.rest.http.rest.Rest;
 import io.github.laplacedemon.light.rest.http.rest.RestHandler;
 import io.github.laplacedemon.light.rest.http.url.URLParser;
 import io.github.laplacedemon.light.rest.http.url.params.MatchParams;
-import io.github.laplacedemon.light.rest.util.PackageScanner;
+import io.github.laplacedemon.light.rest.ioc.Component;
+import io.github.laplacedemon.light.rest.ioc.IoCFactory;
+import io.github.laplacedemon.light.rest.util.PackageScannerUtils;
 
 public class RestDispatcher {
+	private IoCFactory ioCFactory;
 	
-	private static RestDispatcher restDispatcher = new RestDispatcher();
-	
-	public static RestDispatcher createDispatcher(String packageName){
+	public static RestDispatcher createDispatcher(final String packageName, final IoCFactory ioCFactory) {
+		RestDispatcher restDispatcher = new RestDispatcher();
+		restDispatcher.ioCFactory = ioCFactory;
 		restDispatcher.scanRestHandler(packageName);
 		return restDispatcher;
 	}
@@ -26,16 +30,27 @@ public class RestDispatcher {
 	private Map<URLParser,RestHandler> uriToRESTHandlerMapper = new HashMap<>();
 	
 	private void scanRestHandler(String pachageName) {
-		PackageScanner packageScanner = new PackageScanner();
 		try {
-			List<Class<?>> classList = packageScanner.scan(pachageName);
-			for(Class<?> clazz : classList){
+			List<Class<?>> classList = PackageScannerUtils.scan(pachageName);
+			for(Class<?> clazz : classList) {
 				boolean isRestHandler = clazz.isAnnotationPresent(Rest.class);
 				if(isRestHandler) {
 					Rest restAnnotation = clazz.getAnnotation(Rest.class);
 					String urlTemplate = restAnnotation.value();
-					URLParser urlParse = URLParser.parse(urlTemplate);					
+					URLParser urlParse = URLParser.parse(urlTemplate);
 					RestHandler restHandler = (RestHandler)clazz.newInstance();
+					
+					Field[] fields = clazz.getDeclaredFields();
+					for (Field field : fields) {
+						Component annotation = field.getAnnotation(Component.class);
+						if (annotation != null) {
+							Class<?> fieldType = field.getType();
+							Object value = this.ioCFactory.get(fieldType);
+							field.setAccessible(true);
+							field.set(restHandler, value);
+						}
+					}
+					
 					this.register(urlParse, restHandler);
 				}
 			}

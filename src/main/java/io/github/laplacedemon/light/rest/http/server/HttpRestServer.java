@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import io.github.laplacedemon.light.rest.http.rest.RestHandler;
 import io.github.laplacedemon.light.rest.http.url.URLParser;
+import io.github.laplacedemon.light.rest.ioc.IoCFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -24,6 +25,7 @@ import io.netty.util.concurrent.EventExecutorGroup;
 public class HttpRestServer implements AutoCloseable {
 	private static Logger LOGGER = LoggerFactory.getLogger(HttpRestServer.class);
 	private int port;
+	private IoCFactory iocFactory;
 	private final ServerBootstrap bootstrap;
 	private final EventLoopGroup bossGroup;
 	private final EventLoopGroup workerGroup;
@@ -40,6 +42,7 @@ public class HttpRestServer implements AutoCloseable {
 
 	public HttpRestServer(final int port, final String uploadFilePath, final String staticIndex) {
 		this.port = port;
+		this.iocFactory = new IoCFactory();
 		this.bossGroup = new NioEventLoopGroup(1);
 		this.workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
 		this.eventExecutorGroup = new DefaultEventExecutorGroup(16);
@@ -66,14 +69,18 @@ public class HttpRestServer implements AutoCloseable {
 	}
 
 	public void scanRestPackage(String packageName) {
-		this.restDispatcher = RestDispatcher.createDispatcher(packageName);
+		this.restDispatcher = RestDispatcher.createDispatcher(packageName, this.iocFactory);
 	}
 	
 	public void register(String urlTemplate, RestHandler basicRESTHandler){
         URLParser urlParse = URLParser.parse(urlTemplate);
         restDispatcher.register(urlParse, basicRESTHandler);
     }
-
+	
+	public IoCFactory iocFactory() {
+		return iocFactory;
+	}
+	
 	public void start() {
 		try {
 			Channel ch = bootstrap.bind(port).sync().channel();

@@ -1,4 +1,4 @@
-package sjq.light.rest.http.server.example;
+package io.github.laplacedemon.light.rest.http;
 
 import io.github.laplacedemon.light.rest.http.connection.IOSession;
 import io.github.laplacedemon.light.rest.http.request.RestRequest;

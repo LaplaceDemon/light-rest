@@ -1,4 +1,6 @@
-package sjq.light.rest.http.server.example;
+package io.github.laplacedemon.light.rest.http;
+
+import java.util.List;
 
 import io.github.laplacedemon.light.rest.http.connection.IOSession;
 import io.github.laplacedemon.light.rest.http.request.RestRequest;
@@ -6,15 +8,15 @@ import io.github.laplacedemon.light.rest.http.response.RestResponse;
 import io.github.laplacedemon.light.rest.http.rest.Rest;
 import io.github.laplacedemon.light.rest.http.rest.RestHandler;
 
-@Rest(value = "/exception")
-public class TestExceptionHttpHandler extends RestHandler {
+@Rest(value = "/query-string")
+public class TestHttpHandler5 extends RestHandler {
 
 	@Override
-	public void get(RestRequest request, IOSession ioSession) throws Exception {
-		String bodyContent = request.parseBodyContent();
+	public void get(RestRequest request, IOSession ioSession) {
+		List<String> ids = request.getParamList("id");
 		RestResponse response = new RestResponse();
-		response.setBodyContent("content:" + bodyContent);
-		throw new Exception("error!-!");
+		response.setBodyContent("query-string:" + ids);
+		ioSession.writeAndFlush(response);
 	}
-
+	
 }

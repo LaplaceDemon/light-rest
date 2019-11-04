@@ -14,6 +14,10 @@ public class IoCFactory {
 		this.iocMap.put(clazz, obj);
 	}
 	
+	public <T> void register(Class<? super T> clazz, final T obj) {
+		this.iocMap.put(clazz, obj);
+	}
+	
 	public Object get(Class<?> clazz) {
 		return this.iocMap.get(clazz);
 	}

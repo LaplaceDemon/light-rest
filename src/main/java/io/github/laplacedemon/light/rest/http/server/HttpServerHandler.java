@@ -14,6 +14,7 @@ import io.github.laplacedemon.light.rest.http.response.RestResponse;
 import io.github.laplacedemon.light.rest.http.rest.MatchAction;
 import io.github.laplacedemon.light.rest.http.rest.RestHandler;
 import io.github.laplacedemon.light.rest.util.ExceptionUtils;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -70,7 +71,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
         final MatchAction matchAction = restDispatcher.findBasicRESTHandler(preUri);
         if (matchAction == null) {
             FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND);
-            ctx.channel().writeAndFlush(response);
+            ctx.channel().writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
             return ;
         }
         

@@ -11,12 +11,10 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-public class PackageScanner {
+public class PackageScannerUtils {
 
-    public List<Class<?>> scan(String packageName) throws ClassNotFoundException {
-
+    public static List<Class<?>> scan(String packageName) throws ClassNotFoundException {
         List<Class<?>> classes = new LinkedList<>();
-
         try {
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
             Enumeration<URL> urls = loader.getResources(packageName.replace('.', '/'));
@@ -42,12 +40,12 @@ public class PackageScanner {
     }
 
 
-    private Class<?> loadClass(ClassLoader loader, String classPath) throws ClassNotFoundException {
+    private static Class<?> loadClass(ClassLoader loader, String classPath) throws ClassNotFoundException {
         classPath = classPath.substring(0, classPath.length() - 6);
         return loader.loadClass(classPath);
     }
 
-    private void scanFromFileProtocol(ClassLoader loader, List<Class<?>> classes, String dir, String packageName) throws ClassNotFoundException {
+    private static void scanFromFileProtocol(ClassLoader loader, List<Class<?>> classes, String dir, String packageName) throws ClassNotFoundException {
         File directory = new File(dir);
         File[] files = directory.listFiles();
         if (directory.isDirectory() && files != null) {
@@ -60,7 +58,7 @@ public class PackageScanner {
         }
     }
 
-    private void scanFromJarProtocol(ClassLoader loader, List<Class<?>> classes, String fullPath) throws ClassNotFoundException {
+    private static void scanFromJarProtocol(ClassLoader loader, List<Class<?>> classes, String fullPath) throws ClassNotFoundException {
         final String jar = fullPath.substring(0, fullPath.lastIndexOf('!'));
         final String parent = fullPath.substring(fullPath.lastIndexOf('!') + 2);
         JarEntry e = null;
