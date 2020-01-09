@@ -2,6 +2,7 @@ package io.github.laplacedemon.light.rest.http.server;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +29,14 @@ import io.netty.handler.codec.http.QueryStringDecoder;
 
 public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpServerHandler.class);
+    private final AtomicInteger connectionCounter;
     
     private RestDispatcher restDispatcher;
 
     public HttpServerHandler(RestDispatcher restDispatcher) {
         super();
         this.restDispatcher = restDispatcher;
+        this.connectionCounter = new AtomicInteger();
     }
 
     @Override
@@ -47,16 +50,16 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
             ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE));
         }
     	
-        restHandler(httpRequest, ctx);
+        restHandler(ctx, httpRequest);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        cause.printStackTrace();
+        LOGGER.error("HttpServerHandler exception:", cause);
         ctx.close();
     }
 
-    private void restHandler(final HttpRequest httpRequest, final ChannelHandlerContext ctx) {
+    private void restHandler(final ChannelHandlerContext ctx, final HttpRequest httpRequest) {
     	IOSession ioSession = ChannelAttribute.getIOSession(ctx);
     	
         String uri = httpRequest.uri();
@@ -158,22 +161,28 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+//    	System.out.println("新建连接  channelRegistered");
         super.channelRegistered(ctx);
     }
 
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+//    	System.out.println("连接关闭  channelUnregistered");
         super.channelUnregistered(ctx);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    	int connCount = this.connectionCounter.incrementAndGet();
+//    	System.out.println("新建连接  channelActive" + "。 连接数：" + connCount);
         super.channelActive(ctx);
         ChannelAttribute.initSession(ctx.channel());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    	int connCount = this.connectionCounter.decrementAndGet();
+//    	System.out.println("连接关闭  channelInactive" + "。 连接数：" + connCount);
         super.channelInactive(ctx);
     }
 
