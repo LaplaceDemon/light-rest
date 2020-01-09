@@ -173,7 +173,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-    	int connCount = this.connectionCounter.incrementAndGet();
+//    	int connCount = this.connectionCounter.incrementAndGet();
 //    	System.out.println("新建连接  channelActive" + "。 连接数：" + connCount);
         super.channelActive(ctx);
         ChannelAttribute.initSession(ctx.channel());
@@ -181,7 +181,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-    	int connCount = this.connectionCounter.decrementAndGet();
+//    	int connCount = this.connectionCounter.decrementAndGet();
 //    	System.out.println("连接关闭  channelInactive" + "。 连接数：" + connCount);
         super.channelInactive(ctx);
     }
