@@ -3,14 +3,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.laplacedemon</groupId>
 	<artifactId>light-rest</artifactId>
-	<version>0.2.0</version>
-	<name>light-weight</name>
+	<version>0.3.0</version>
+	<name>light-rest</name>
     <description>Lightweight Restful HTTP API framework</description>
     <url>https://github.com/LaplaceDemon/light-rest</url>
     <parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
-        <version>7</version>
+        <version>9</version>
     </parent>
     <scm>
         <url>https://github.com/LaplaceDemon/light-rest</url>
@@ -21,7 +21,7 @@
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
-			<version>4.1.36.Final</version>
+			<version>4.1.44.Final</version>
 		</dependency>
 		<!-- log -->
 		<dependency>
@@ -29,7 +29,6 @@
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.25</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>

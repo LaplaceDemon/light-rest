@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.github.laplacedemon.light.rest.http.response.RestResponse;
+import io.github.laplacedemon.light.rest.http.response.TextResponse;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -113,6 +114,12 @@ public class IOSession {
 
 	public void willClose() {
 		this.requestWillCloseConnection.set(true);
+	}
+
+	public void writeTextAndFlush(String content) {
+		TextResponse textResponse = new TextResponse();
+		textResponse.setBodyContent(content);
+		this.writeAndFlush(textResponse);
 	}
 
 }

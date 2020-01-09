@@ -1,6 +1,6 @@
-package sjq.light.rest.http.server.example;
+package io.github.laplacedemon.light.rest.http;
 
-import java.util.List;
+import java.util.Map;
 
 import io.github.laplacedemon.light.rest.http.connection.IOSession;
 import io.github.laplacedemon.light.rest.http.request.RestRequest;
@@ -8,15 +8,16 @@ import io.github.laplacedemon.light.rest.http.response.RestResponse;
 import io.github.laplacedemon.light.rest.http.rest.Rest;
 import io.github.laplacedemon.light.rest.http.rest.RestHandler;
 
-@Rest(value = "/query-string")
-public class TestHttpHandler5 extends RestHandler {
+@Rest(value = "/test/{id}")
+public class TestHttpHandler2 extends RestHandler {
 
 	@Override
 	public void get(RestRequest request, IOSession ioSession) {
-		List<String> ids = request.getParamList("id");
 		RestResponse response = new RestResponse();
-		response.setBodyContent("query-string:" + ids);
+		Map<String, String> pathParams = request.getPathParams();
+		String value = pathParams.get("id");
+		response.setBodyContent("hello-test:" + value);
 		ioSession.writeAndFlush(response);
 	}
-	
+
 }
