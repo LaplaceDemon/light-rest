@@ -2,7 +2,7 @@ package io.github.laplacedemon.light.rest.http.server;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+//import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,14 +29,14 @@ import io.netty.handler.codec.http.QueryStringDecoder;
 
 public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpServerHandler.class);
-    private final AtomicInteger connectionCounter;
+//    private final AtomicInteger connectionCounter;
     
     private RestDispatcher restDispatcher;
 
     public HttpServerHandler(RestDispatcher restDispatcher) {
         super();
         this.restDispatcher = restDispatcher;
-        this.connectionCounter = new AtomicInteger();
+//        this.connectionCounter = new AtomicInteger();
     }
 
     @Override
