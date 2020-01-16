@@ -16,6 +16,7 @@ import io.github.laplacedemon.light.rest.http.rest.MatchAction;
 import io.github.laplacedemon.light.rest.http.rest.RestHandler;
 import io.github.laplacedemon.light.rest.util.ExceptionUtils;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -27,7 +28,7 @@ import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.QueryStringDecoder;
 
-public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> {
+public class HttpServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpServerHandler.class);
 //    private final AtomicInteger connectionCounter;
     
@@ -45,7 +46,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
     }
 
     @Override
-    public void channelRead0(ChannelHandlerContext ctx, HttpRequest httpRequest) {
+    public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest httpRequest) {
     	if (HttpUtil.is100ContinueExpected(httpRequest)) {
             ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE));
         }
@@ -59,7 +60,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
         ctx.close();
     }
 
-    private void restHandler(final ChannelHandlerContext ctx, final HttpRequest httpRequest) {
+    private void restHandler(final ChannelHandlerContext ctx, final FullHttpRequest httpRequest) {
     	IOSession ioSession = ChannelAttribute.getIOSession(ctx);
     	
         String uri = httpRequest.uri();
@@ -73,6 +74,12 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
         
         final MatchAction matchAction = restDispatcher.findBasicRESTHandler(preUri);
         if (matchAction == null) {
+            ChannelHandler lastChannelHandler = ctx.pipeline().last();
+            if (lastChannelHandler != null &&  lastChannelHandler instanceof StaticFileHandler) {
+                httpRequest.retain();
+                ctx.fireChannelRead(httpRequest);
+                return ;
+            }
             FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND);
             ctx.channel().writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
             return ;
@@ -113,7 +120,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
                 restHandler.options(request, ioSession);
                 break;
             default:
-                LOGGER.warn("can't support http method :{}", method);
+                LOGGER.warn("Can't support http method :{}", method);
                 RestResponse restResponse = new RestResponse();
                 restResponse.setStatus(HttpResponseStatus.NOT_FOUND.code());
                 ioSession.writeAndFlush(restResponse);
@@ -134,6 +141,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
             return ;
         } catch (Exception exception) {
     		LOGGER.error(ExceptionUtils.parseExceptionStackTrace(exception));
+    		
     		RestResponse restResponse = new RestResponse();
     		restResponse.setStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
     		restResponse.setBodyContent(exception.getMessage());
@@ -161,28 +169,22 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> 
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-//    	System.out.println("新建连接  channelRegistered");
         super.channelRegistered(ctx);
     }
 
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-//    	System.out.println("连接关闭  channelUnregistered");
         super.channelUnregistered(ctx);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-//    	int connCount = this.connectionCounter.incrementAndGet();
-//    	System.out.println("新建连接  channelActive" + "。 连接数：" + connCount);
         super.channelActive(ctx);
         ChannelAttribute.initSession(ctx.channel());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-//    	int connCount = this.connectionCounter.decrementAndGet();
-//    	System.out.println("连接关闭  channelInactive" + "。 连接数：" + connCount);
         super.channelInactive(ctx);
     }
 
