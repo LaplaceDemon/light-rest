@@ -31,22 +31,26 @@ public class HttpRestServer implements AutoCloseable {
 	private final EventLoopGroup workerGroup;
 	private RestDispatcher restDispatcher;
 	private final EventExecutorGroup eventExecutorGroup;
+	private final String staticResourcesPath;
+	private final String uriPrefix;
 
 	public HttpRestServer(final int port) {
-		this(port, null);
+		this(port, null, null);
 	}
+	
+//	public HttpRestServer(final int port, final String uploadFilePath) {
+//		this(port, uploadFilePath, null);
+//	}
 
-	public HttpRestServer(final int port, final String uploadFilePath) {
-		this(port, uploadFilePath, null);
-	}
-
-	public HttpRestServer(final int port, final String uploadFilePath, final String staticIndex) {
+	public HttpRestServer(final int port, final String uriPrefix, final String staticResourcesPath) {
 		this.port = port;
 		this.iocFactory = new IoCFactory();
 		this.bossGroup = new NioEventLoopGroup(1);
 		this.workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
 		this.eventExecutorGroup = new DefaultEventExecutorGroup(16);
-
+		this.staticResourcesPath = staticResourcesPath; 
+		this.uriPrefix = uriPrefix;
+		
 		this.bootstrap = new ServerBootstrap();
 		this.bootstrap.group(bossGroup, workerGroup)
 				.option(ChannelOption.SO_BACKLOG, 1024)
@@ -61,8 +65,11 @@ public class HttpRestServer implements AutoCloseable {
 						ChannelPipeline pipeline = socketChannel.pipeline();
 						pipeline.addLast("codec", new HttpServerCodec())
 								.addLast("aggregator", new HttpObjectAggregator(1048576))
-								.addLast(eventExecutorGroup, "rest", new HttpServerHandler(restDispatcher))
-								.addLast(eventExecutorGroup, "file", new HttpStaticFileServerHandler(uploadFilePath, staticIndex));
+								.addLast(eventExecutorGroup, "rest", new HttpServerHandler(restDispatcher));
+//								.addLast(eventExecutorGroup, "file", new HttpStaticFileServerHandler(uploadFilePath, staticIndex))
+						if (HttpRestServer.this.uriPrefix != null) {
+						    pipeline.addLast("static", new StaticFileHandler(HttpRestServer.this.uriPrefix,HttpRestServer.this.staticResourcesPath));
+						}
 					}
 				});
 	}
@@ -95,5 +102,9 @@ public class HttpRestServer implements AutoCloseable {
 		bossGroup.shutdownGracefully();
 		workerGroup.shutdownGracefully();
 	}
+
+    public void setStaticPath(String string) {
+        
+    }
 
 }

@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.github.laplacedemon.light.rest.http.rest.MatchAction;
 import io.github.laplacedemon.light.rest.http.rest.Rest;
 import io.github.laplacedemon.light.rest.http.rest.RestHandler;
@@ -16,6 +19,7 @@ import io.github.laplacedemon.light.rest.ioc.IoCFactory;
 import io.github.laplacedemon.light.rest.util.PackageScannerUtils;
 
 public class RestDispatcher {
+    private final static Logger LOGGER = LoggerFactory.getLogger(RestDispatcher.class);
 	private IoCFactory ioCFactory;
 	
 	public static RestDispatcher createDispatcher(final String packageName, final IoCFactory ioCFactory) {
@@ -55,11 +59,11 @@ public class RestDispatcher {
 				}
 			}
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			LOGGER.error("", e);
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			LOGGER.error("", e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			LOGGER.error("", e);
 		}
 	}
 		
