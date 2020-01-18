@@ -22,18 +22,24 @@ public class RestDispatcher {
     private final static Logger LOGGER = LoggerFactory.getLogger(RestDispatcher.class);
 	private IoCFactory ioCFactory;
 	
-	public static RestDispatcher createDispatcher(final String packageName, final IoCFactory ioCFactory) {
+	public static RestDispatcher createDispatcher(final IoCFactory ioCFactory) {
 		RestDispatcher restDispatcher = new RestDispatcher();
 		restDispatcher.ioCFactory = ioCFactory;
-		restDispatcher.scanRestHandler(packageName);
 		return restDispatcher;
 	}
+	
+//	public static RestDispatcher createDispatcher(final String packageName, final IoCFactory ioCFactory) {
+//		RestDispatcher restDispatcher = new RestDispatcher();
+//		restDispatcher.ioCFactory = ioCFactory;
+//		restDispatcher.scanRestHandler(packageName);
+//		return restDispatcher;
+//	}
 	
 	private RestDispatcher(){}
 	
 	private Map<URLParser,RestHandler> uriToRESTHandlerMapper = new HashMap<>();
 	
-	private void scanRestHandler(String pachageName) {
+	public void scanRestHandler(String pachageName) {
 		try {
 			List<Class<?>> classList = PackageScannerUtils.scan(pachageName);
 			for(Class<?> clazz : classList) {

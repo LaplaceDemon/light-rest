@@ -44,12 +44,14 @@ public class HttpRestServer implements AutoCloseable {
 
 	public HttpRestServer(final int port, final String uriPrefix, final String staticResourcesPath) {
 		this.port = port;
-		this.iocFactory = new IoCFactory();
-		this.bossGroup = new NioEventLoopGroup(1);
-		this.workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
-		this.eventExecutorGroup = new DefaultEventExecutorGroup(16);
 		this.staticResourcesPath = staticResourcesPath; 
 		this.uriPrefix = uriPrefix;
+		
+		this.iocFactory = new IoCFactory();
+		this.bossGroup = new NioEventLoopGroup();
+		this.workerGroup = new NioEventLoopGroup();
+		this.eventExecutorGroup = new DefaultEventExecutorGroup(16);
+		this.restDispatcher = RestDispatcher.createDispatcher(this.iocFactory);
 		
 		this.bootstrap = new ServerBootstrap();
 		this.bootstrap.group(bossGroup, workerGroup)
@@ -66,7 +68,7 @@ public class HttpRestServer implements AutoCloseable {
 						pipeline.addLast("codec", new HttpServerCodec())
 								.addLast("aggregator", new HttpObjectAggregator(1048576))
 								.addLast(eventExecutorGroup, "rest", new HttpServerHandler(restDispatcher));
-//								.addLast(eventExecutorGroup, "file", new HttpStaticFileServerHandler(uploadFilePath, staticIndex))
+						
 						if (HttpRestServer.this.uriPrefix != null) {
 						    pipeline.addLast("static", new StaticFileHandler(HttpRestServer.this.uriPrefix,HttpRestServer.this.staticResourcesPath));
 						}
@@ -75,12 +77,12 @@ public class HttpRestServer implements AutoCloseable {
 	}
 
 	public void scanRestPackage(final String packageName) {
-		this.restDispatcher = RestDispatcher.createDispatcher(packageName, this.iocFactory);
+		this.restDispatcher.scanRestHandler(packageName);
 	}
 
 	public void register(final String urlTemplate, final RestHandler basicRESTHandler) {
 		URLParser urlParse = URLParser.parse(urlTemplate);
-		restDispatcher.register(urlParse, basicRESTHandler);
+		this.restDispatcher.register(urlParse, basicRESTHandler);
 	}
 
 	public IoCFactory iocFactory() {
