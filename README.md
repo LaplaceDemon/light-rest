@@ -15,7 +15,7 @@ Tomcat慢，SpringMVC重。构建Restful API真的不需要那么复杂。
 <dependency>
     <groupId>io.github.laplacedemon</groupId>
     <artifactId>light-rest</artifactId>
-    <version>0.1.1</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 
@@ -52,21 +52,18 @@ public class TestHttpServer {
 
 #### 2.1 一个最基础的REST处理器。
 ```java
-package sjq.light.rest.http.server;
+package io.github.laplacedemon.light.rest.http;
 
-import sjq.light.rest.http.request.Request;
-import sjq.light.rest.http.response.Response;
-import sjq.light.rest.http.rest.Rest;
-import sjq.light.rest.http.rest.RestHandler;
+import ...
 
 @Rest(value = "/test")
 public class TestHttpHandler1 extends RestHandler {
 
     @Override
-    public Response get(Request request) {
-        Response response = new Response();
+    public void get(RestRequest request, IOSession ioSession) {
+    	RestResponse response = new RestResponse();
         response.setBodyContent("hello-test");
-        return response;
+        ioSession.writeAndFlush(response);
     }
     
 }
@@ -86,47 +83,47 @@ package sjq.light.rest.http.server.example;
 @Rest(value = "/method")
 public class TestHttpHandler4 extends RestHandler {
 
-    @Override
-    public Response get(Request request) {
-        Response response = new Response();
-        response.setBodyContent("method-get");
-        return response;
-    }
+	@Override
+	public void get(RestRequest request, IOSession ioSession) {
+		RestResponse response = new RestResponse();
+		response.setBodyContent("method-get");
+		ioSession.writeAndFlush(response);
+	}
 
-    @Override
-    public Response post(Request request) throws Exception {
-        Response response = new Response();
-        response.setBodyContent("method-post");
-        return response;
-    }
+	@Override
+	public void post(RestRequest request, IOSession ioSession) throws Exception {
+		RestResponse response = new RestResponse();
+		response.setBodyContent("method-post");
+		ioSession.writeAndFlush(response);
+	}
 
-    @Override
-    public Response put(Request request) throws Exception {
-        Response response = new Response();
-        response.setBodyContent("method-put");
-        return response;
-    }
+	@Override
+	public void put(RestRequest request, IOSession ioSession) throws Exception {
+		RestResponse response = new RestResponse();
+		response.setBodyContent("method-put");
+		ioSession.writeAndFlush(response);
+	}
 
-    @Override
-    public Response delete(Request request) throws Exception {
-        Response response = new Response();
-        response.setBodyContent("method-delete");
-        return response;
-    }
+	@Override
+	public void delete(RestRequest request, IOSession ioSession) throws Exception {
+		RestResponse response = new RestResponse();
+		response.setBodyContent("method-delete");
+		ioSession.writeAndFlush(response);
+	}
 
-    @Override
-    public Response head(Request request) throws Exception {
-        Response response = new Response();
-        response.setBodyContent("method-head");
-        return response;
-    }
+	@Override
+	public void head(RestRequest request, IOSession ioSession) throws Exception {
+		RestResponse response = new RestResponse();
+		response.setBodyContent("method-head");
+		ioSession.writeAndFlush(response);
+	}
 
-    @Override
-    public Response options(Request request) throws Exception {
-        Response response = new Response();
-        response.setBodyContent("method-options");
-        return response;
-    }
+	@Override
+	public void options(RestRequest request, IOSession ioSession) throws Exception {
+		RestResponse response = new RestResponse();
+		response.setBodyContent("method-options");
+		ioSession.writeAndFlush(response);
+	}
 
 }
 ```
@@ -148,26 +145,21 @@ public class TestHttpHandler4 extends RestHandler {
 #### 2.3 提取查询字符串中的参数
 
 ```java
-package sjq.light.rest.http.server.example;
+package io.github.laplacedemon.light.rest.http;
 
-import java.util.List;
-
-import sjq.light.rest.http.request.Request;
-import sjq.light.rest.http.response.Response;
-import sjq.light.rest.http.rest.Rest;
-import sjq.light.rest.http.rest.RestHandler;
+import ...
 
 @Rest(value = "/query-string")
 public class TestHttpHandler5 extends RestHandler {
 
-    @Override
-    public Response get(Request request) {
-        List<String> ids = request.getParams("id");
-        Response response = new Response();
-        response.setBodyContent("query-string:" + ids);
-        return response;
-    }
-    
+	@Override
+	public void get(RestRequest request, IOSession ioSession) {
+		List<String> ids = request.getParamList("id");
+		RestResponse response = new RestResponse();
+		response.setBodyContent("query-string:" + ids);
+		ioSession.writeAndFlush(response);
+	}
+	
 }
 ```
 
@@ -178,23 +170,20 @@ public class TestHttpHandler5 extends RestHandler {
 #### 2.4 获取请求体中的内容
 
 ```java
-package sjq.light.rest.http.server.example;
+package io.github.laplacedemon.light.rest.http;
 
-import sjq.light.rest.http.request.Request;
-import sjq.light.rest.http.response.Response;
-import sjq.light.rest.http.rest.Rest;
-import sjq.light.rest.http.rest.RestHandler;
+import ...
 
 @Rest(value = "/content")
 public class TestHttpHandler6 extends RestHandler {
 
-    @Override
-    public Response post(Request request) {
-        String bodyContent = request.getBodyContent();
-        Response response = new Response();
-        response.setBodyContent("content:" + bodyContent);
-        return response;
-    }
+	@Override
+	public void post(RestRequest request, IOSession ioSession) throws IOException {
+		String bodyContent = request.parseBodyContent();
+		RestResponse response = new RestResponse();
+		response.setBodyContent("content:" + bodyContent);
+		ioSession.writeAndFlush(response);
+	}
 
 }
 ```
@@ -206,19 +195,21 @@ public class TestHttpHandler6 extends RestHandler {
 #### 2.5 提取URL中的参数
 Restful API经常需要解析URL中数值。light-rest对URL的匹配取值是非常灵活的。
 ```java
-// 省略import
+package io.github.laplacedemon.light.rest.http;
+
+import ...
 
 @Rest(value = "/test/{id}")
 public class TestHttpHandler2 extends RestHandler {
 
-    @Override
-    public Response get(Request request) {
-        Response response = new Response();
-        Map<String, String> pathParams = request.getPathParams();
-        String value = pathParams.get("id");
-        response.setBodyContent("hello-test:" + value);
-        return response;
-    }
+	@Override
+	public void get(RestRequest request, IOSession ioSession) {
+		RestResponse response = new RestResponse();
+		Map<String, String> pathParams = request.getPathParams();
+		String value = pathParams.get("id");
+		response.setBodyContent("hello-test:" + value);
+		ioSession.writeAndFlush(response);
+	}
 
 }
 ```
@@ -229,22 +220,22 @@ public class TestHttpHandler2 extends RestHandler {
 
 #### 2.6 提取多个URL中的参数
 ```java
-package sjq.light.rest.http.server.example;
+package io.github.laplacedemon.light.rest.http;
 
-// 省略import
+import ...
 
 @Rest(value = "/test/{id}/{name}")
 public class TestHttpHandler3 extends RestHandler {
 
-    @Override
-    public Response get(Request request) {
-        Response response = new Response();
-        Map<String, String> pathParams = request.getPathParams();
-        String id = pathParams.get("id");
-        String name = pathParams.get("name");
-        response.setBodyContent("hello-test:" + id + "," + name);
-        return response;
-    }
+	@Override
+	public void get(RestRequest request, IOSession ioSession) {
+		RestResponse response = new RestResponse();
+		Map<String, String> pathParams = request.getPathParams();
+		String id = pathParams.get("id");
+		String name = pathParams.get("name");
+		response.setBodyContent("hello-test:" + id + "," + name);
+		ioSession.writeAndFlush(response);
+	}
 
 }
 ```
@@ -254,7 +245,143 @@ public class TestHttpHandler3 extends RestHandler {
 
 
 
+### 3 IoC 容器
 
+light-rest 核心提供了一个简易的容器工厂，用于实现依赖注入。实现非常简单，只需要在server启动前向工厂注册，这样RestHander就可以直接使用这些注入的数值了。
+
+```java
+package io.github.laplacedemon.light.rest.ioc;
+
+import io.github.laplacedemon.light.rest.http.server.HttpRestServer;
+
+public class TestServer {
+
+	public TestServer() {
+	}
+
+	public void start() throws Exception {
+		try (HttpRestServer httpRestServer = new HttpRestServer(8080)) {
+			// Ioc factory
+			IoCFactory iocFactory = httpRestServer.iocFactory();
+			
+			// register string
+			String str = "helloworld";
+			iocFactory.register(str);
+
+			// register string array
+			String[] strs = new String[3];
+			strs[0] = "hello";
+			strs[1] = "world";
+			strs[2] = "!!!";
+			iocFactory.register(strs);
+			
+			// scan package
+			httpRestServer.scanRestPackage("io.github.laplacedemon.light.rest.ioc");
+			
+			// start
+			httpRestServer.start();
+		}
+	}
+
+	public static void main(String[] args) throws Exception {
+		new TestServer().start();
+	}
+
+}
+```
+
+```java
+package io.github.laplacedemon.light.rest.ioc;
+
+import ...
+
+@Rest(value = "/ioc/text")
+public class TestStringHandler extends RestHandler {
+	
+	@Component
+	private String testString;
+
+	@Override
+	public void get(RestRequest request, IOSession ioSession) throws Exception {
+		ioSession.writeTextAndFlush(testString);
+	}
+	
+}
+```
+
+```java
+package io.github.laplacedemon.light.rest.ioc;
+
+import ...
+
+@Rest(value = "/ioc/texts")
+public class TestStringsHandler extends RestHandler {
+	
+	@Component
+	private String[] testStrings;
+
+	@Override
+	public void get(RestRequest request, IOSession ioSession) throws Exception {
+		ioSession.writeTextAndFlush(Arrays.toString(testStrings));
+	}
+	
+}
+
+```
+
+
+
+### 4 静态文件服务器
+
+light-rest提供静态资源访问服务，以方便构建一个完整的Web服务。
+
+例：以下代码的静态资源放置于当前项目resources/static目录下。访问URL的前缀为 `/` 。
+
+```java
+package io.github.laplacedemon.light.rest.file;
+
+import io.github.laplacedemon.light.rest.http.server.HttpRestServer;
+
+public class TestServer {
+
+    public TestServer() {
+    }
+
+    public void start() throws Exception {
+        try (HttpRestServer httpRestServer = new HttpRestServer(8090, "/", "")) {
+            // scan package
+            httpRestServer.scanRestPackage("io.github.laplacedemon.light.rest.file");
+            
+            // start
+            httpRestServer.start();
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        new TestServer().start();
+    }
+
+}
+```
+
+```java
+package io.github.laplacedemon.light.rest.file;
+
+import io.github.laplacedemon.light.rest.http.connection.IOSession;
+import io.github.laplacedemon.light.rest.http.request.RestRequest;
+import io.github.laplacedemon.light.rest.http.rest.Rest;
+import io.github.laplacedemon.light.rest.http.rest.RestHandler;
+
+@Rest(value = "/text")
+public class TestStringHandler extends RestHandler {
+
+	@Override
+	public void get(RestRequest request, IOSession ioSession) throws Exception {
+		ioSession.writeTextAndFlush("hello world!");
+	}
+	
+}
+```
 
 
 
