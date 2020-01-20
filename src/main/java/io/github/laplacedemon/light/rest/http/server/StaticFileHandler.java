@@ -53,7 +53,7 @@ public class StaticFileHandler extends SimpleChannelInboundHandler<HttpRequest> 
             if (StringUtils.isEmpty(this.staticResourcesPath)) {
                 InputStream inputStream = StaticFileHandler.class.getClassLoader().getResourceAsStream("static/" + resourceName);
                 FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
-                byte[] buf = new byte[50];
+                byte[] buf = new byte[1024];
                 while (true) {
                     int read = inputStream.read(buf);
                     if (read <= 0) {
@@ -90,8 +90,8 @@ public class StaticFileHandler extends SimpleChannelInboundHandler<HttpRequest> 
                 // write file
                 ChannelFuture sendFileFuture = ctx.write(fileRegion, ctx.newProgressivePromise());
                 sendFileFuture.addListener(new ChannelProgressiveFutureListener() {
+                    
                     @Override
-
                     public void operationProgressed(ChannelProgressiveFuture future, long progress, long total) {
                         if (total < 0) { // total unknown
                             LOGGER.info(future.channel() + " Transfer progress: " + progress);
