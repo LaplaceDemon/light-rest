@@ -52,6 +52,11 @@ public class StaticFileHandler extends SimpleChannelInboundHandler<HttpRequest> 
             final ChannelFuture flushFuture;
             if (StringUtils.isEmpty(this.staticResourcesPath)) {
                 InputStream inputStream = StaticFileHandler.class.getClassLoader().getResourceAsStream("static/" + resourceName);
+                if (inputStream == null) {
+                	sendError(ctx, HttpResponseStatus.NOT_FOUND);
+                    return;
+                }
+                
                 FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
                 byte[] buf = new byte[1024];
                 while (true) {
